@@ -21,7 +21,7 @@ set -eu
 # In case you want a different name
 CLUSTER_NAME=${CLUSTER_NAME:-couchbase-gitops}
 # The server container image to use
-SERVER_IMAGE=${SERVER_IMAGE:-couchbase/server:7.0.0}
+SERVER_IMAGE=${SERVER_IMAGE:-couchbase/server:7.0.1}
 
 # Delete the old cluster (if it exists)
 kind delete cluster --name="${CLUSTER_NAME}"
