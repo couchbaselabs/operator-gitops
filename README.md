@@ -2,7 +2,7 @@
 
 This repository is to support the Couchbase CONNECT 2021 talk: "Create a Multi-Node Couchbase Deployment Locally in Three Easy Steps With GitOps"
 
-It includes all the examples of how to use Kubernetes-in-docker (KIND), Helm, the Couchbase Operator and the Couchbase SDK to spin up a local development cluster with a working example.
+It includes all the examples of how to use Kubernetes-in-docker or [KIND](https://kind.sigs.k8s.io/), [Helm](https://helm.sh/), the [Couchbase Autonomous Operator](https://docs.couchbase.com/operator/current/overview.html) (CAO) and the Couchbase SDK to spin up a local development cluster with a working example.
 
 # Abstract
 
