@@ -1,4 +1,4 @@
-# operator-gitops
+# Create a Multi-Node Couchbase Deployment Locally in Three Easy Steps With GitOps
 
 This repository is to support the Couchbase CONNECT 2021 talk: "Create a Multi-Node Couchbase Deployment Locally in Three Easy Steps With GitOps"
 
