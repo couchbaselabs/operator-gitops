@@ -13,15 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Simple script to spin up a local deployment containing your application.
+# Simple script to spin up a local deployment running the test application.
 set -eu
 
-# The image we want to run up
+# The image we want to run up.
 DEV_IMAGE=${DEV_IMAGE:-tallbigsam/couchbase-nodejs-sdk:latest}
-# The Kubernetes namespace to deploy into
+# The Kubernetes namespace to deploy into (make sure it exists).
 NAMESPACE=${NAMESPACE:-default}
 
-# Create a deployment for our dev container
+# Create a deployment for our dev container image.
 cat << EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -42,6 +42,7 @@ spec:
       - name: couchbase-sdk-dev
         image: $DEV_IMAGE
 EOF
+# Note that if you do not change anything then it will stay deployed from a previous run.
 
 echo "Waiting for Dev Deployment to start up..."
 until kubectl rollout status deployment/couchbase-sdk-dev; do
@@ -50,6 +51,6 @@ until kubectl rollout status deployment/couchbase-sdk-dev; do
 done
 echo "Dev Deployment configured and ready to go"
 
-#get the name of the development pod
+# Output the name of the development pod
 DEV_POD=$(kubectl get pods deployment/couchbase-sdk-dev --output=jsonpath='{.items[*].metadata.name}')
 echo "Dev Pod Name: $DEV_POD"
