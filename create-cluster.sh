@@ -22,18 +22,18 @@ set -eu
 CLUSTER_NAME=${CLUSTER_NAME:-couchbase-gitops}
 # The server container image to use
 SERVER_IMAGE=${SERVER_IMAGE:-couchbase/server:7.0.1}
+SERVER_COUNT=${SERVER_COUNT:-1}
 
 # Delete the old cluster (if it exists)
 kind delete cluster --name="${CLUSTER_NAME}"
 
-# Create KIND cluster with 3 worker nodes
+# Create KIND cluster with 1 worker node
+# Mostly just an example to show you how to do it
 kind create cluster --name="${CLUSTER_NAME}" --config - <<EOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
-- role: worker
-- role: worker
 - role: worker
 EOF
 
@@ -45,10 +45,10 @@ kind load docker-image "${SERVER_IMAGE}" --name="${CLUSTER_NAME}"
 helm repo add couchbase https://couchbase-partners.github.io/helm-charts/ || helm repo add couchbase https://couchbase-partners.github.io/helm-charts
 # Ensure we update the repo (may have added it years ago!)
 helm repo update
-# Deploy the cluster with all defaults except the image used.
+# Deploy the cluster with all defaults except the image used and the number of pods.
 # This will create a three pod Couchbase server cluster with all services on each pod.
 # Always installs the latest version of the Helm chart (which is usually fine for dev), can be pinned with --version X
-helm upgrade --install couchbase couchbase/couchbase-operator --set cluster.image="${SERVER_IMAGE}"
+helm upgrade --install couchbase couchbase/couchbase-operator --set cluster.image="${SERVER_IMAGE}",cluster.servers.default.size="${SERVER_COUNT}"
 # To tweak the helm deployment there are a lots of options.
 # All the configuration values are here: https://github.com/couchbase-partners/helm-charts/blob/master/charts/couchbase-operator/values.yaml
 # You may not want to deploy a Couchbase Cluster at all, e.g. if you only want to deploy the DAC and operator so
@@ -59,7 +59,7 @@ helm upgrade --install couchbase couchbase/couchbase-operator --set cluster.imag
 # Wait for deployment to complete, the --wait flag does not work for this.
 echo "Waiting for CB to start up..."
 # The operator uses readiness gates to hold the containers until the cluster is actually ready to be used
-until [[ $(kubectl get pods --field-selector=status.phase=Running --selector='app=couchbase' --no-headers 2>/dev/null |wc -l) -eq 3 ]]; do
+until [[ $(kubectl get pods --field-selector=status.phase=Running --selector='app=couchbase' --no-headers 2>/dev/null |wc -l) -eq $SERVER_COUNT ]]; do
     echo -n '.'
     sleep 2
 done

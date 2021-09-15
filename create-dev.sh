@@ -16,10 +16,16 @@
 # Simple script to spin up a local deployment running the test application.
 set -eu
 
+CLUSTER_NAME=${CLUSTER_NAME:-couchbase-gitops}
 # The image we want to run up.
-DEV_IMAGE=${DEV_IMAGE:-tallbigsam/couchbase-nodejs-sdk:latest}
+DEV_IMAGE=${DEV_IMAGE:-couchbase-nodejs-sdk:v1}
 # The Kubernetes namespace to deploy into (make sure it exists).
 NAMESPACE=${NAMESPACE:-default}
+AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET:-auth-couchbase-couchbase-cluster}
+CB_SERVICE=${CB_SERVICE:-couchbase-couchbase-cluster}
+
+docker build -t "${DEV_IMAGE}" .
+kind load docker-image "${DEV_IMAGE}" --name="${CLUSTER_NAME}"
 
 # Create a deployment for our dev container image.
 cat << EOF | kubectl apply -f -
@@ -39,8 +45,23 @@ spec:
         environment: "dev"
     spec:
       containers:
-      - name: couchbase-sdk-dev
+      - name: dev-container
         image: $DEV_IMAGE
+        imagePullPolicy: Never
+        env:
+          - name: CB_HOST
+            value: $CB_SERVICE
+          # https://kubernetes.io/docs/concepts/configuration/secret/#environment-variables-are-not-updated-after-a-secret-update
+          - name: CB_USER
+            valueFrom:
+              secretKeyRef:
+                name: $AUTHENTICATION_SECRET
+                key: username
+          - name: CB_PSWD
+            valueFrom:
+              secretKeyRef:
+                name: $AUTHENTICATION_SECRET
+                key: password
 EOF
 # Note that if you do not change anything then it will stay deployed from a previous run.
 
@@ -52,5 +73,5 @@ done
 echo "Dev Deployment configured and ready to go"
 
 # Output the name of the development pod
-DEV_POD=$(kubectl get pods deployment/couchbase-sdk-dev --output=jsonpath='{.items[*].metadata.name}')
+DEV_POD=$(kubectl get pods -l couchSdk=dev --output=jsonpath='{.items[*].metadata.name}')
 echo "Dev Pod Name: $DEV_POD"
