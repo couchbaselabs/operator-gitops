@@ -32,5 +32,11 @@ The script adds some extra helpers and configuration:
 * Wait for it all to complete
 
 ## Couchbase SDK example
+The index.js sample file follows similar principles to that in our SDK examples [Couchbase Node SDK - Getting Started](https://docs.couchbase.com/nodejs-sdk/current/hello-world/start-using-sdk.html). Please ensure that you have the Couchbase SDK installed, or utilise the environment built for you with [create-dev.sh](./create-dev.sh). 
 
-TODO
+The script follows a basic example:
+1. Connect to a Couchbase cluster, using specified credentials, and retrieve the default collection
+2. Perform an upsert operation on the bucket.
+3. Retrieve the document which was upserted and output it to the CLI.
+
+The outcome of running this example script is to give you a starter environment for you to directly test and develop functionality against a real Couchbase environment. 
